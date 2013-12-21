@@ -1,0 +1,21 @@
+<h1>{{name}} ({{address}})</h1>
+<p>You are a nameserver on {{network}}. <p>
+<h3>Your job</h3>
+<p>
+    Find a place on {{network}}. Make sure you have a large pile of packets.
+    When you are handed a packet, check who it is addressed to. If it's 
+    addressed to you ({{address}}), keep it. Otherwise, pass it along.
+</p>
+<p>
+    When a message arrives for you, it will ask you for somebody's IP address.
+    Use the table below to look up that person's address. Then write a response
+    that includes the requested person's name and IP address. If a message arrives 
+    for you that doesn't ask about someone's IP address, or doesn't make sense, 
+    write back saying "I don't understand."
+</p>
+<h3>IP Addresses</h3>
+<table>
+{% for entry in lookupTable | dictsort %}
+    <tr><td>{{entry[0]}}</td><td>{{entry[1]}}</td></tr>
+{% endfor %}
+</table>

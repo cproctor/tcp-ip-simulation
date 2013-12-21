@@ -1,0 +1,11 @@
+<h1>{{name}} ({{address}})</h1>
+<p>You are a gateway router on {{network}} managing subnet {{subnet}}.<p>
+<h3>Your job</h3>
+<p>
+    Go take {{subnet}}. Then find a place on {{network}}, and spread {{subnet}}
+    out where there is some space. When you are handed a packet, your job is to 
+    decide what to do with it. If it's addressed to you ({{address}}), keep it but
+    don't write back.  If the packet's 
+    address starts with {{mask}}, then pass it to someone on your subnet ({{subnet}}). 
+    Otherwise, pass it to someone on your main network ({{network}}).
+</p>

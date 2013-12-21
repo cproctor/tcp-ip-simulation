@@ -11,7 +11,8 @@ class TcpIpSimulation(object):
     def __init__(self, students, networks, outfile="simulation.html",
             max_nodes=6,
             nameservers=1,
-            root_address="100.100"):
+            ip_address_length=2):
+        root_address = '.'.join(["100"] * ip_address_length)
         shuffle(students)
         self.outfile = outfile
         self.networks = networks

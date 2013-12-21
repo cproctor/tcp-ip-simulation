@@ -7,6 +7,12 @@ the internet.
 
 Quickstart
 ----------
+To generate the documents you need for a simulation, download this module:
+
+    git clone https://github.com/cproctor/tcp-ip-simulation.git
+
+Then write a little script:
+
     studentNames = ['Suzie', 'Liza', 'Emily', 'Ann', 'Chandra', 'Minh Li',
         'Alice', 'Lulu', 'Alejandra', 'Celeste', 'Mia', 'Silvia', 'Diane',
         'Em', 'Jo', 'Gilia', 'Vallen']
@@ -15,6 +21,11 @@ Quickstart
     sim = TcpIpSimulation(students, networks, nameservers=2, max_nodes=5)
     sim.print_tree()
     sim.generate()
+
+Now you have an HTML file called simulation.html. If you're going to print 
+it, you may need to copy it into a word-processor and add line breaks.
+
+    open simulation.html
 
 Overview
 --------
@@ -25,8 +36,16 @@ holding onto a loop of rope (gateway nodes hold two loops).
 
 Any node may generate a request by filling out a data packet and then 
 handing it to another node she is connected to by rope. The FROM and 
-TO fields of the data packet must contain an IP address. The CONTENT 
-field may contain whatever fits into the box. When a node receives a 
+TO fields of the data packet must contain an IP address. The MESSAGE
+field may contain whatever fits into the box. For example:
+
+    --------------------------------------
+    TO:         101.100.100
+    FROM:       102.103.100
+    MESSAGE:    What is Lulu's IP address?
+    --------------------------------------
+
+When a node receives a 
 request, she should look at the TO field. If the request is for her, 
 she should write a response back to the sender and throw away the 
 request. If the request is not for her, she should pass it along to 

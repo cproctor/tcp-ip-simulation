@@ -1,37 +1,20 @@
-studentNames = [
-"Giselle Hernandez Arana",
-"Cate Celio",
-"Valerie Braylovskiy",
-"Isabelle Ancajas",
-"Ellie Budde",
-"Anne Friedman",
-"Sofia Akhtar",
-"Carlie Malott",
-"Gwyneth Wong",
-"Sadie Fernandez",
-"Emily Gatica",
-"Grace Huber",
-"Sahana Singh",
-"Anna Finlay",
-"Tiffany Sanchez",
-"Anna Majorek",
-"Roohi Joshi"
-]
+from random import shuffle
 
-students = [{"name": name} for name in studentNames]
-networks = ["Network %s" % (netNum + 1) for netNum in range(4)]
+#participants = ["Person %s" % (num + 1) for num in range(258)]
+participants = ["Person %s" % (num + 1) for num in range(199)]
+#shuffle(participants)
 
 from tcpip_simulation import TcpIpSimulation
 
 sim = TcpIpSimulation(
-    students=students,
-    networks=networks,
-    nameservers=2,
-    max_nodes=5
+    participants=participants,
+    nodes_per_nameserver=7,
+    max_nodes=6,
+    ip_address_length=3
 )
 
 sim.print_tree()
-sim.generate()
+#sim.generate()
 
 
 

@@ -7,23 +7,41 @@ the internet.
 
 Quickstart
 ----------
-To generate the documents you need for a simulation, download this module:
+To generate the documents you need for a simulation, download this module
+(type the command below into Terminal):
 
     git clone https://github.com/cproctor/tcp-ip-simulation.git
 
-Then write a little script and save it in the "python" folder.
+Then go into the project, go into the `python` folder, and create a new script:
 
-    studentNames = ['Suzie', 'Liza', 'Emily', 'Ann', 'Chandra', 'Minh Li',
+    cd tcp-ip-simulation
+    cd python
+    touch my_simulation.py
+    open my_simulation.py
+
+Here's some sample code. You may need to fiddle with `max_nodes` and `nodes_per_nameserver`
+to find a network that feels good. 
+
+    from tcpip_simulation import TcpIpSimulation
+
+    students_list = ['Suzie', 'Liza', 'Emily', 'Ann', 'Chandra', 'Minh Li',
         'Alice', 'Lulu', 'Alejandra', 'Celeste', 'Mia', 'Silvia', 'Diane',
         'Em', 'Jo', 'Gilia', 'Vallen']
-    students = [{'name': name} for name in studentNames]
-    networks = ["Network %s" % i for i in range(20)]
-    sim = TcpIpSimulation(students, networks, nameservers=2, max_nodes=5)
+    sim = TcpIpSimulation(
+        students_list,
+        max_nodes=6,
+        nodes_per_nameserver=6,
+        ip_address_length=2
+    )
     sim.print_tree()
+    sim.print_directory()
     sim.generate()
 
-Now you have an HTML file called simulation.html. If you're going to print 
-it, you may need to copy it into a word-processor and add line breaks.
+Run your file by typing `python my_simulation.py` into Terminal. You will see
+the network map (gives a good overview of what's going on, but not required for
+the simulation) and the directory (you'll need to give a copy of this to each 
+nameserver). You h also have an HTML file called simulation.html containing 
+instructions for each student:
 
     open simulation.html
 

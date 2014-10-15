@@ -35,7 +35,7 @@ to find a network that feels good.
     )
     sim.print_tree()
     sim.print_directory()
-    sim.generate()
+    sim.generate_instructions()
 
 Run your file by typing `python my_simulation.py` into Terminal. You will see
 the network map (gives a good overview of what's going on, but not required for

@@ -40,7 +40,7 @@ to find a network that feels good.
 Run your file by typing `python my_simulation.py` into Terminal. You will see
 the network map (gives a good overview of what's going on, but not required for
 the simulation) and the directory (you'll need to give a copy of this to each 
-nameserver). You h also have an HTML file called simulation.html containing 
+nameserver). You now have an HTML file called `simulation.html` containing 
 instructions for each student:
 
     open simulation.html

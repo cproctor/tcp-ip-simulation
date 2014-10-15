@@ -11,7 +11,7 @@ To generate the documents you need for a simulation, download this module:
 
     git clone https://github.com/cproctor/tcp-ip-simulation.git
 
-Then write a little script:
+Then write a little script and save it in the "python" folder.
 
     studentNames = ['Suzie', 'Liza', 'Emily', 'Ann', 'Chandra', 'Minh Li',
         'Alice', 'Lulu', 'Alejandra', 'Celeste', 'Mia', 'Silvia', 'Diane',
@@ -51,8 +51,8 @@ she should write a response back to the sender and throw away the
 request. If the request is not for her, she should pass it along to 
 the next person. 
 
-Some nodes have special responsibilities. The Name Server(s) has a lookup 
-table, translating peoples’ names into IP addresses. When the Name Server(s) 
+Some nodes have special responsibilities. The nameservers have a lookup 
+table, translating peoples’ names into IP addresses. When the nameservers
 receives a request for a name lookup, she should look up that person’s name 
 and return a response containing that person’s name. Gateway nodes are 
 responsible for deciding which network they should forward requests to. Each 
@@ -61,29 +61,26 @@ whether a request belongs on her network. If a request matches the pattern, it
 should be sent along the subnetwork; otherwise it should be sent along the main 
 network.
 
-There are two rounds of the simulation. In the first round (about 8 minutes), 
-students simply chat with one another. Each student has an assigned chat 
-partner, but may chat with others as well. The goal is to figure out the basic 
+Encourage the participants to send messages to whomever they want. Sometimes I 
+also encourage participants to mess with the system and see what they can get
+away with. The goal is to figure out the basic 
 mechanics of communication. At the end of the first round, a discussion should 
 uncover the following attributes of the system:
 
 - You have to query the nameserver before you can send messages to someone new.
-- Packets can take different paths to arrive at their destinations, and can take 
-  different amounts of time to get there.
-- If any rope were cut somewhere, packets would still be able to get to get to 
-  their destinations.
+- Packets can take different amounts of time to get to their destination
 - There is no way to really know who the message came from. It is possible to 
   spoof other IP addresses. 
 - It is possible to see what other people are talking about if you look at packets 
-  that are not yours. 
+  that are not yours. A really malicious agent could replace packets with new packets,
+  and neither the sender nor the receiver would be able to detect it.
 
-In the second round, students will be required to transmit longer messages to each 
-other, which don’t fit in a single packet. If students are doing well, you could 
-steal some packets (or possibly even 
-knock a few nodes offline). Before the second round, lead a discussion with 
-students creating a protocol to transmit a message broken into several packets, a 
+If the participants are ready for a greater challenge, ask them to transmit longer 
+messages to each other, which don’t fit in a single packet. 
+Before this second round, lead a discussion about
+creating a protocol to transmit a message broken into several packets, a 
 means of putting the messages back in order, and a means of re-requesting any 
-packet that gets dropped. Then start the second round. 
+packet that gets dropped. 
 
 After the simulation, put students in small groups with different node types, so 
 they can discuss their various experiences. If you try this with your students, I 

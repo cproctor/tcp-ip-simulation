@@ -1,5 +1,32 @@
 <html>
     <head>
+        <style>
+            body {
+                font-family: Helvetica;
+            }
+            .role {
+                font-style: italic;
+            }
+            .message-template {
+                border: 2px solid black;
+                margin: 5px;
+                padding: 10px;
+                width: 400px;
+            }
+            .message-template li {
+                list-style: none;
+            }
+            .header {
+                font-weight: bold;
+            }
+            @media print {
+
+                .node-instructions {
+                    page-break-after: always;
+                }
+
+            }
+        </style>
     </head>
     <body>
         {% block content %}

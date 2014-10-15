@@ -2,6 +2,8 @@
 
 {% block content %}
     {% for node in nodes %}
-        {{node}}
+        <div class="node-instructions">
+            {% include "node.jinja2" %}
+        </div>
     {% endfor %}
 {% endblock %}

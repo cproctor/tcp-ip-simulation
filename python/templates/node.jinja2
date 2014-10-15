@@ -1,29 +1,79 @@
-<h1>{{name}} ({{address}})</h1>
-<p>You are a regular computer on {{network}}. Your nameserver's IP address is {{nameserver}}.</p>
-<h3>Getting Started </h3>
-<p>
-    Find a place on {{network}}. Make sure you have a bunch of packet
-    forms. When you want to send a message, fill out a packet and hand 
-    it to someone next to you. When you are handed a packet, check who 
-    it is addressed to. If it's addressed to you ({{address}}), keep it,
-    read its message, and respond if you want to. If the packet is not
-    addressed to you, pass it along.
-</p>
-<h3>Round 1</h3>
-<p>
-    In Round 1, your goal is to chat with {{round1}}. First, you'll 
-    need to get her IP address. Write to your nameserver ({{nameserver}}) and ask for {{round1}}'s 
-    IP address. Then you will be able to write to {{round1}}. Start by saying hi, 
-    then see if you can have a back-and-forth conversation. If
-    you want to say something complicated, you'll probably need to use more than 
-    one packet. At the same time, someone else will be trying to chat with you.
-</p>
-<h3>Round 2</h3>
-<p>
-    Round 2 will be trickier--your goal is to send your poem to {{round2}}. Your poem 
-    will not fit in a single packet, so you will need to break it up into pieces. 
-    There's no way to tell the order in which packets will arrive. Worse, some packets
-    might be lost in transit. How can you ensure that {{round2}} receives your entire 
-    poem and can put it back together again at the end? At the same time, someone else
-    will be sending you her poem.
-</p>
+<h1>{{node.name}} (IP Address: {{node.address}})</h1>
+<p class="role">
+    {% if node.is_nameserver %}
+        You are a nameserver, responsible for looking up addresses for your clients. 
+    {% else %}
+        {% if node.is_gateway %}
+            You are a gateway router, responsible for directing traffic between two networks. 
+        {% else %}
+            You are an ordinary computer on the Internet. 
+        {% endif %}
+        Your nameserver is {{node.nameserver}}.
+    {% endif %}
+
+<h2>Setup</h2>
+<ul>
+    <li>Make sure you have a pen or a pencil.</li>
+    {% if node.is_gateway %}
+        <li>Find the place where network {{node.network}} meets network {{node.subnet}} and sit so you can touch both circles.</li>
+        <li>Notice who is to your right ( --> ) along the circle of network {{node.network}}. Then notice who is to your right along network {{node.subnet}}. </li>
+    {% else %}
+        <li>Find network {{node.network}} and sit down on the outside of the circle.</li>
+        <li>Notice who is to your right ( --> ) along the circle of network {{node.network}}.</li>
+    {% endif %}
+</ul>
+<h2>Receiving messages</h2>
+<ul>
+    <li>When you are handed a message, check to see if it's for you ({{node.address}}). If so, keep it. (And write back!)</li>
+    {% if node.is_gateway %}
+        <li>Otherwise, check whether the message was sent to an IP address that starts with {{node.subnet}}.
+            <ul>
+                <li>If it starts with {{node.subnet}}, pass it to the right along network {{node.subnet}}.</li>
+                <li>Otherwise, pass it to the right along network {{node.network}}.</li>
+            </ul>
+        </li>
+    {% else %}
+        <li>Otherwise, pass the message to the right along network {{node.network}}.</li>
+    {% endif %}
+</ul>
+    
+<h2>Sending messages</h2>
+<ul>
+    <li>To send a message, fill out a slip of paper with "To", "From", and "Message" fields. When you are ready to send it, pass it to the right 
+    {% if node.is_gateway %}
+        (if the address starts with {{node.subnet}}, pass it to the right on network {{node.subnet}}; otherwise pass it to the right on network {{node.network}}).
+    {% else %}
+        along network {{node.network}} as usual.
+    {% endif %}</li>
+    {% if not node.is_nameserver %}
+        <li>You can send messages to whoever you want. First, ask your nameserver for your friend's IP address:
+            <div class="message-template">
+                <ul>
+                    <li><span class="header">To:</span> {{node.nameserver}}</li>
+                    <li><span class="header">From:</span> {{node.address}}</li>
+                    <li><span class="header">Message:</span> What is Toodle Oo's address?</li>
+                </ul>
+            </div>
+        </li>
+        <li>Once your nameserver writes you back, you can write to your friend:
+            <div class="message-template">
+                <ul>
+                    <li><span class="header">To:</span> 16.17.18</li>
+                    <li><span class="header">From:</span> {{node.address}}</li>
+                    <li><span class="header">Message:</span> Hi Toodle! It's {{node.name}}. Are you going to Homework Club today?</li>
+                </ul>
+            </div>
+        </li>
+    {% else %}
+        <li>You can send messages to whoever you want. First, use your Directory to look up the address of the person you would like to write to. Then write a message:</li>
+            <div class="message-template">
+                <ul>
+                    <li><span class="header">To:</span> 16.17.18</li>
+                    <li><span class="header">From:</span> {{node.address}}</li>
+                    <li><span class="header">Message:</span> Hi Toodle! It's {{node.name}}. Are you going to Homework Club today?</li>
+                </ul>
+            </div>
+        </li>
+        <li>You are a nameserver, so most of the messages you receive will be requests for somebody's IP address. Use the Directory to look up the requested name, and write back.</li>
+    {% endif%}
+</ul>

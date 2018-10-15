@@ -128,8 +128,8 @@ class TcpIpSimulation(object):
             if potential_nameserver.is_gateway():
                 continue
             nodes_in_range = potential_nameserver._get_nodes_within_hops(hops)
-            potential_clients = filter(lambda n: not hasattr(n, 'nameserver') 
-                    and n is not self.rootNode, nodes_in_range) 
+            potential_clients = list(filter(lambda n: not hasattr(n, 'nameserver') 
+                    and n is not self.rootNode, nodes_in_range))
             if len(potential_clients) >= self.nodes_per_nameserver:
                 return [potential_nameserver, potential_clients[:self.nodes_per_nameserver]]
         return [None, None]

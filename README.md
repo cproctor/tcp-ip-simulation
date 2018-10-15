@@ -3,7 +3,18 @@ TCP/IP Simulation
 
 This module generates the documents needed for a classroom (or schoolwide) 
 simulation of TCP/IP, the protocol that gets packets of information around 
-the internet.
+the internet. Use this to generate each player's instructions. You will also 
+need to mark out networks with loops of rope or tape on the floor, and lots 
+of small scraps of paper--at least ten or twenty per player, each about the size
+of an index card. 
+
+To create the physical layout, start by creating Network 0 in the middle of the room
+(using rope or tape), with enough room for the students on Network 0 to sit around 
+the network. Then, create networks 11, 12, etc. (depending on the settings you used)
+so that they touch Network 0 at the middle of the room. If you have additional layers
+of subnets, continue to add them as circles touching their parent networks. When we
+tried this with 200 students in a gym, the subnets needed to be stretched out as narrow ovals
+so there was enough room for everyone.
 
 Quickstart
 ----------
@@ -105,5 +116,5 @@ they can discuss their various experiences. If you try this with your students, 
 would love to hear how it went.
 
 -Chris Proctor
-chris@proctors.us
+chris@chrisproctor.net
 

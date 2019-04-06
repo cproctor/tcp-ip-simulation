@@ -112,9 +112,12 @@ means of putting the messages back in order, and a means of re-requesting any
 packet that gets dropped. 
 
 After the simulation, put students in small groups with different node types, so 
-they can discuss their various experiences. If you try this with your students, I 
-would love to hear how it went.
+they can discuss their various experiences. This could easily lead to a follow-up
+activity with the linux `traceroute` utility. 
+
+If you try this with your students, I would love to hear how it went.
 
 -Chris Proctor
+
 chris@chrisproctor.net
 

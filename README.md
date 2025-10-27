@@ -24,7 +24,7 @@ the participants in the simulation. Then run:
 ```
 
 This will generate materials for your simulation. 
-[Here's an example](sample-tcp-ip-simulation.pdf).
+[Here's an example](https://raw.githubusercontent.com/cproctor/tcp-ip-simulation/refs/heads/main/sample-tcp-ip-simulation.pdf).
 
 ## Options
 

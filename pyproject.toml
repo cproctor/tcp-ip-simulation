@@ -1,6 +1,6 @@
 [project]
 name = "tcp-ip-simulation"
-version = "0.1.0"
+version = "0.2.0"
 description = "Generates materials for a classroom simulation of TCP/IP"
 authors = [
     {name = "Chris Proctor",email = "chris@chrisproctor.net"}
@@ -15,11 +15,14 @@ dependencies = [
 ]
 
 [project.scripts]
-generate = "tcp_ip_simulation.cli:generate"
+generate-tcp-ip-simulation = "tcp_ip_simulation.cli:generate"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-include = ["tcp_ip_simulation/templates/*.html"]
+include = [
+    "tcp_ip_simulation/templates/*.html",
+    "sample-tcp-ip-simulation.pdf"
+]

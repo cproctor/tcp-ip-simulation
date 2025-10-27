@@ -2,6 +2,7 @@ import csv
 from random import shuffle
 from argparse import ArgumentParser
 from tcp_ip_simulation.tcp_ip_simulation import TcpIpSimulation
+from tcp_ip_simulation.tcp_ip_simulation_graph import TcpIpSimulationGraph
 
 def generate():
     parser = ArgumentParser(
@@ -19,6 +20,8 @@ def generate():
             help="Path to save result HTML file")
     parser.add_argument("-r", "--random", action="store_true",
             help="Randomize order of participants")
+    parser.add_argument("-s", "--figsize", default=6, type=int,
+            help="Size of simulation graph")
     args = parser.parse_args()
     
     with open(args.participants) as fh:
@@ -37,4 +40,6 @@ def generate():
         nodes_per_nameserver=args.nodes_per_nameserver,
         ip_address_length=args.ip_address_length,
     )
+    graph = TcpIpSimulationGraph(sim).generate(size=args.figsize, outfile="sim_graph.png")
     sim.generate_instructions()
+

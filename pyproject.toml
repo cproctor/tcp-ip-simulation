@@ -1,6 +1,6 @@
 [project]
 name = "tcp-ip-simulation"
-version = "0.2.1"
+version = "0.2.2"
 description = "Generates materials for a classroom simulation of TCP/IP"
 authors = [
     {name = "Chris Proctor",email = "chris@chrisproctor.net"}
@@ -13,6 +13,10 @@ dependencies = [
     "networkx (>=3.5,<4.0)",
     "matplotlib (>=3.10.7,<4.0.0)"
 ]
+
+[project.urls]
+homepage = "https://github.com/cproctor/tcp-ip-simulation"
+repository = "https://github.com/cproctor/tcp-ip-simulation"
 
 [project.scripts]
 generate-tcp-ip-simulation = "tcp_ip_simulation.cli:generate"

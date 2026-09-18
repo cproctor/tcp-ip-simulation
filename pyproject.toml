@@ -22,11 +22,9 @@ repository = "https://github.com/cproctor/tcp-ip-simulation"
 generate-tcp-ip-simulation = "tcp_ip_simulation.cli:generate"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.8,<0.9"]
+build-backend = "uv_build"
 
-[tool.poetry]
-include = [
-    "tcp_ip_simulation/templates/*.html",
-    "sample-tcp-ip-simulation.pdf"
-]
+[tool.uv.build-backend]
+module-root = ""
+source-include = ["sample-tcp-ip-simulation.pdf"]

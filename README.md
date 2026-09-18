@@ -5,13 +5,15 @@ Internet. This package generates everything you need to run a fun and
 informative simulation of TCP/IP in your classroom, for any number of
 students. We once ran this simulation with 200 students in a gymnasium!
 
+**Try it in your browser, no installation needed: https://cproctor.github.io/tcp-ip-simulation/**
+
 ## Installation
 
 This package is installed on PyPI, so you can install it with pip. The simplest way
-to install and use this package is with [pipx](https://pipx.pypa.io):
+to install and use this package is with [uv](https://docs.astral.sh/uv/):
 
 ```
-% pipx install tcp-ip-simulation
+% uv tool install tcp-ip-simulation
 ```
 
 ## Quickstart

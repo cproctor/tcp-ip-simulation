@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>TCP/IP Simulation</title>
+  <style>
+    body { font-family: Helvetica, Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 0 16px 64px; line-height: 1.5; color: #222; }
+    code, pre { background: #f3f3f3; border-radius: 3px; }
+    code { padding: 1px 4px; }
+    pre { padding: 10px; overflow-x: auto; }
+    fieldset { border: 2px solid #1f78b4; border-radius: 6px; padding: 12px 16px; margin: 24px 0; }
+    legend { font-weight: bold; padding: 0 6px; }
+    .control { margin: 12px 0; }
+    .control label { font-weight: bold; display: block; }
+    .control .help { color: #555; font-size: 0.9em; }
+    .control input[type=number], .control input[type=text] { width: 8em; padding: 3px; }
+    .control input[type=text] { width: 16em; }
+    .control.check label { display: inline; }
+    button { font-size: 1em; padding: 6px 14px; margin-right: 6px; cursor: pointer; }
+    button.primary { background: #1f78b4; color: white; border: 0; border-radius: 4px; }
+    #status { margin-top: 10px; }
+    #status.error { color: #b00020; font-weight: bold; }
+    #result { display: none; }
+    #actions { margin: 10px 0; }
+    #preview { width: 100%; height: 700px; border: 1px solid #999; }
+  </style>
+</head>
+<body>
+  <h1>TCP/IP Simulation</h1>
+  <p>
+    TCP/IP is the protocol responsible for routing messages around the
+    Internet. This page generates everything you need to run a fun and
+    informative simulation of TCP/IP in your classroom, for any number of
+    students. We once ran this simulation with 200 students in a gymnasium!
+    Everything happens in your browser: your list of names is never uploaded anywhere.
+  </p>
+
+  <fieldset>
+    <legend>Generate your simulation</legend>
+    <div class="control">
+      <label for="participants">Participants (CSV file)</label>
+      <input type="file" id="participants" accept=".csv,text/csv">
+      <div class="help">A CSV file with a <code>name</code> column listing every participant. Other columns are ignored.</div>
+    </div>
+    <div class="control">
+      <label for="ipLength">IP address length</label>
+      <input type="number" id="ipLength" value="3" min="1" step="1">
+      <div class="help">Number of components in IP addresses (<code>-l</code>).</div>
+    </div>
+    <div class="control">
+      <label for="maxNodes">Maximum nodes per network</label>
+      <input type="number" id="maxNodes" value="6" min="1" step="1">
+      <div class="help">How many people sit in each network circle (<code>-m</code>).</div>
+    </div>
+    <div class="control">
+      <label for="nodesPerNameserver">Nodes per nameserver</label>
+      <input type="number" id="nodesPerNameserver" value="6" min="1" step="1">
+      <div class="help">How many clients each nameserver serves (<code>-n</code>).</div>
+    </div>
+    <div class="control check">
+      <input type="checkbox" id="random">
+      <label for="random">Randomize order of participants</label>
+      <div class="help">Otherwise, participants are placed in the order listed (<code>-r</code>).</div>
+    </div>
+    <div class="control">
+      <label for="figsize">Graph size</label>
+      <input type="number" id="figsize" value="6" min="2" step="1">
+      <div class="help">Size of the simulation graph, in inches (<code>-s</code>).</div>
+    </div>
+    <div class="control">
+      <label for="outfile">Output file name</label>
+      <input type="text" id="outfile" value="simulation.html">
+      <div class="help">Name of the downloaded HTML file (<code>-o</code>).</div>
+    </div>
+    <button class="primary" id="generate">Generate</button>
+    <div id="status" role="status"></div>
+  </fieldset>
+
+  <div id="result">
+    <h2>Your materials</h2>
+    <div id="actions">
+      <button id="download">Download HTML</button>
+      <button id="print">Print</button>
+    </div>
+    <p>The download is a single self-contained HTML file: open it in a browser and print it. It has one page of instructions for you, then one page for each participant.</p>
+    <iframe id="preview" title="Generated simulation materials"></iframe>
+  </div>
+
+  <h2>How it works</h2>
+  <p>
+    The Internet is organized into networks. There is one top-level network (Network 0, the
+    "backbone"), with smaller subnetworks attached to it, and smaller ones attached to those.
+    In the simulation, each network is a circle of students, and messages are handwritten
+    slips of paper passed from person to person to the right. Each student plays one of
+    three roles:
+  </p>
+  <ul>
+    <li><strong>Regular nodes</strong> are normal computers. They keep messages addressed to them and pass along the rest.</li>
+    <li><strong>Gateway routers</strong> sit on two networks at once. When they receive a message for someone else, they decide whether it belongs on their subnetwork or on their main network, by looking at the start of the IP address.</li>
+    <li><strong>Nameservers</strong> keep an address book. Before writing to someone, you must ask your nameserver for their IP address.</li>
+  </ul>
+  <p>
+    When you generate a simulation, participants are added one at a time. Each network
+    fills up to the maximum number of nodes; after that, new participants join the smallest
+    subnetwork below it, hanging off an existing participant who then becomes that subnetwork's
+    gateway. IP addresses reflect this position: a participant's address starts with the address
+    of the network they belong to. Nameservers are then assigned to groups of nearby
+    participants, starting from the center. Gateways are never nameservers.
+  </p>
+  <p>
+    The output contains a teacher's guide (objectives, background, room setup with a map of the
+    networks, a directory of every IP address, a lesson plan and a worked example) followed by a
+    personalized instruction sheet for each participant.
+    <a href="https://raw.githubusercontent.com/cproctor/tcp-ip-simulation/refs/heads/main/sample-tcp-ip-simulation.pdf">Here's an example</a>.
+  </p>
+
+  <h2>Options</h2>
+  <ul>
+    <li><strong>IP address length</strong>: how many components addresses have. Each level of subnetworks uses one, so a larger value allows deeper networks. If you get an "address space is full" error, increase this or the maximum nodes per network.</li>
+    <li><strong>Maximum nodes per network</strong>: the largest circle of students. Smaller values make more, smaller networks.</li>
+    <li><strong>Nodes per nameserver</strong>: how many clients each nameserver serves.</li>
+    <li><strong>Randomize</strong>: shuffles the participants before placing them.</li>
+    <li><strong>Graph size</strong>: the size of the network diagram.</li>
+    <li><strong>Output file name</strong>: what the download is called.</li>
+  </ul>
+
+  <h2>Command line</h2>
+  <p>
+    This page does the same thing as the <code>generate-tcp-ip-simulation</code> Python package
+    (<a href="https://github.com/cproctor/tcp-ip-simulation">source and documentation</a>),
+    which you can install with <a href="https://docs.astral.sh/uv/">uv</a>:
+  </p>
+<pre>% uv tool install tcp-ip-simulation
+% generate-tcp-ip-simulation names.csv</pre>
+
+<script>
+"use strict";
+
+const INDENT = "  ";
+const DEFAULT_MAX_NODES = 5;
+
+class AddressSpaceFullError extends Error {}
+class NameserverAssignmentError extends Error {}
+
+// ---------------------------------------------------------------- Node
+
+class TcpIpNode {
+  constructor(name, maxNodes) {
+    this.name = name;
+    this.maskLength = 0;
+    this.maxNodes = maxNodes;
+    this.nodes = [];
+    this.nameserverClients = [];
+    this.nextAddress = 11;
+    this.parent = null;
+    this.nameserver = null;
+    this.address = null;
+  }
+
+  toString() {
+    let ns;
+    if (this.isNameserver()) ns = "";
+    else if (this.nameserver) ns = ` (nameserver: ${this.nameserver.name})`;
+    else ns = " (no nameserver)";
+    return `${this.address} ${this.name} (${this.role()})${ns}`;
+  }
+
+  addNode(node) {
+    node.maskLength += 1;
+    if (!this.full()) {
+      node.parent = this;
+      node.address = this.generateAddress();
+      this.nodes.push(node);
+    } else {
+      const subnet = this.smallestPartiallyFilledSubnet() ||
+        this.emptySubnet() ||
+        this.recursivelySmallestSubnet();
+      subnet.addNode(node);
+    }
+  }
+
+  role() {
+    if (this.nodes.length) return `gateway for network ${this.subnetName()}`;
+    if (this.nameserverClients.length) return "nameserver";
+    return "node";
+  }
+
+  treeString(withRoot = true, depth = 0) {
+    let result = withRoot ? INDENT.repeat(depth) + this.toString() + "\n" : "";
+    for (const child of this.nodes) result += child.treeString(true, depth + 1);
+    return result;
+  }
+
+  getNodes(recursive = false) {
+    let nodes = this.nodes.slice();
+    if (recursive) for (const gateway of this.nodes) nodes = nodes.concat(gateway.getNodes(true));
+    return nodes;
+  }
+
+  // Nodes reachable within `hops` moves to a parent, sibling, or child.
+  nodesWithinHops(hops) {
+    const nodeSet = [];
+    const leaves = [[this, hops]];
+    while (leaves.length) {
+      const [node, hopsLeft] = leaves.shift();
+      if (!nodeSet.includes(node)) nodeSet.push(node);
+      if (hopsLeft > 0) {
+        const adjacent = node.siblings().concat(node.nodes);
+        if (node.parent) adjacent.unshift(node.parent);
+        for (const a of adjacent) if (!nodeSet.includes(a)) leaves.push([a, hopsLeft - 1]);
+      }
+    }
+    return nodeSet;
+  }
+
+  generateAddress() {
+    const parts = this.address.split(".");
+    if (this.maskLength >= parts.length) {
+      throw new AddressSpaceFullError(
+        "The address space is full. Increase the maximum nodes per network or the IP address length.");
+    }
+    parts[this.maskLength] = String(this.nextAddress);
+    this.nextAddress += 1;
+    return parts.join(".");
+  }
+
+  full() { return this.nodes.length >= this.maxNodes; }
+  siblings() { return this.parent ? this.parent.nodes : []; }
+  isGateway() { return this.nodes.length > 0; }
+  isNameserver() { return this.nameserverClients.length > 0; }
+
+  networkName() {
+    return this.parent.address.split(".").filter(p => p !== "10").join(".") || "0";
+  }
+
+  subnetName() {
+    return this.isGateway() ? this.nodes[0].networkName() : "NO SUBNET";
+  }
+
+  smallestPartiallyFilledSubnet() {
+    const partial = this.nodes.filter(n => n.nodes.length && !n.full());
+    if (!partial.length) return null;
+    let smallest = partial[0];
+    for (const child of partial) {
+      if (child.getNodes().length < smallest.getNodes().length) smallest = child;
+    }
+    return smallest;
+  }
+
+  emptySubnet() {
+    return this.nodes.find(n => !n.nodes.length) || null;
+  }
+
+  recursivelySmallestSubnet() {
+    if (!this.nodes.length) return null;
+    return this.nodes.reduce((a, b) =>
+      a.getNodes(true).length <= b.getNodes(true).length ? a : b, this.nodes[0]);
+  }
+}
+
+// ---------------------------------------------------------- Simulation
+
+class TcpIpSimulation {
+  constructor(participants, { maxNodes = 6, nodesPerNameserver = 6, ipAddressLength = 3 } = {}) {
+    this.nodesPerNameserver = nodesPerNameserver;
+    this.root = new TcpIpNode("ROOT", maxNodes);
+    this.root.address = Array(ipAddressLength).fill("10").join(".");
+    for (const p of participants) this.root.addNode(new TcpIpNode(p, maxNodes));
+    this.assignNameservers();
+  }
+
+  // Depth-first preorder, starting at the root.
+  nodeList() {
+    const list = [];
+    const visit = n => { list.push(n); n.nodes.forEach(visit); };
+    visit(this.root);
+    return list;
+  }
+
+  // Each node has a nameserver. Gateways can't be nameservers. Starting from the
+  // top of the tree, find a node with enough nearby unassigned nodes to serve as
+  // a nameserver, and assign those nodes to it. Widen the search as needed.
+  assignNameservers() {
+    const nodeList = this.nodeList();
+    nodeList.shift(); // not ROOT
+    const maxHops = nodeList.length + 1;
+    let hops = 0;
+    while (nodeList.length >= this.nodesPerNameserver && hops < maxHops) {
+      hops += 1;
+      for (;;) {
+        const [ns, clients] = this.findNewNameserver(nodeList, hops);
+        if (!ns) break;
+        for (const client of clients) {
+          nodeList.splice(nodeList.indexOf(client), 1);
+          this.assignClient(client, ns);
+        }
+      }
+    }
+    if (nodeList.length) {
+      const final = nodeList[nodeList.length - 1];
+      if (final.isGateway()) {
+        throw new NameserverAssignmentError(`Cannot assign gateway ${final.name} as a nameserver.`);
+      }
+      for (const client of nodeList) this.assignClient(client, final);
+    }
+  }
+
+  findNewNameserver(nodeList, hops) {
+    for (const candidate of nodeList) {
+      if (candidate.isGateway()) continue;
+      const clients = candidate.nodesWithinHops(hops)
+        .filter(n => !n.nameserver && n !== this.root);
+      if (clients.length >= this.nodesPerNameserver) {
+        return [candidate, clients.slice(0, this.nodesPerNameserver)];
+      }
+    }
+    return [null, null];
+  }
+
+  assignClient(client, nameserver) {
+    nameserver.nameserverClients.push(client);
+    client.nameserver = nameserver;
+  }
+}
+
+// --------------------------------------------------------------- Graph
+
+// Builds the graph of networks: each network is a ring of nodes.
+function buildEdges(root) {
+  const edges = [];
+  const label = n => `${n.name}\n(${n.address})`;
+  const addNetwork = (gateway, withGateway) => {
+    const ring = gateway.nodes.slice();
+    if (withGateway) ring.push(gateway);
+    if (ring.length > 2) ring.push(ring[0]);
+    for (let i = 0; i + 1 < ring.length; i++) edges.push([label(ring[i]), label(ring[i + 1])]);
+    for (const n of gateway.nodes) if (n.isGateway()) addNetwork(n, true);
+  };
+  addNetwork(root, false);
+  return edges;
+}
+
+// Fruchterman-Reingold spring layout, scaled to fit a square of side `size`.
+function springLayout(ids, edges, size, margin) {
+  const n = ids.length;
+  const index = new Map(ids.map((id, i) => [id, i]));
+  const pos = ids.map(() => [Math.random(), Math.random()]);
+  const k = 1 / Math.sqrt(n);
+  const iterations = 200;
+  let t = 0.1;
+  const dt = t / (iterations + 1);
+  for (let it = 0; it < iterations; it++) {
+    const disp = pos.map(() => [0, 0]);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if (i === j) continue;
+        const dx = pos[i][0] - pos[j][0], dy = pos[i][1] - pos[j][1];
+        const d = Math.max(Math.hypot(dx, dy), 0.01);
+        const f = k * k / d;
+        disp[i][0] += dx / d * f; disp[i][1] += dy / d * f;
+      }
+    }
+    for (const [a, b] of edges) {
+      const i = index.get(a), j = index.get(b);
+      const dx = pos[i][0] - pos[j][0], dy = pos[i][1] - pos[j][1];
+      const d = Math.max(Math.hypot(dx, dy), 0.01);
+      const f = d * d / k;
+      disp[i][0] -= dx / d * f; disp[i][1] -= dy / d * f;
+      disp[j][0] += dx / d * f; disp[j][1] += dy / d * f;
+    }
+    for (let i = 0; i < n; i++) {
+      const len = Math.max(Math.hypot(disp[i][0], disp[i][1]), 0.01);
+      pos[i][0] += disp[i][0] / len * Math.min(len, t);
+      pos[i][1] += disp[i][1] / len * Math.min(len, t);
+    }
+    t -= dt;
+  }
+  const cx = pos.reduce((s, p) => s + p[0], 0) / n;
+  const cy = pos.reduce((s, p) => s + p[1], 0) / n;
+  const extent = Math.max(...pos.map(p => Math.max(Math.abs(p[0] - cx), Math.abs(p[1] - cy))), 1e-6);
+  const scale = (size / 2 - margin) / extent;
+  return pos.map(p => [size / 2 + (p[0] - cx) * scale, size / 2 + (p[1] - cy) * scale]);
+}
+
+// Returns an SVG string. `figsize` is in inches, drawn at 100 pixels per inch.
+function graphSvg(sim, figsize) {
+  const size = figsize * 100;
+  const edges = buildEdges(sim.root);
+  const ids = [...new Set(edges.flat())];
+  const pos = springLayout(ids, edges, size, 55);
+  const at = new Map(ids.map((id, i) => [id, pos[i]]));
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="100%" role="img" aria-label="Network map">`;
+  for (const [a, b] of edges) {
+    const [x1, y1] = at.get(a), [x2, y2] = at.get(b);
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-opacity="0.27" stroke-width="7"/>`;
+  }
+  for (const id of ids) {
+    const [x, y] = at.get(id);
+    const [name, addr] = id.split("\n");
+    svg += `<circle cx="${x}" cy="${y}" r="35" fill="#1f78b4" fill-opacity="0.27"/>` +
+      `<text x="${x}" y="${y - 2}" text-anchor="middle" font-size="14" font-family="Helvetica, Arial, sans-serif">${esc(name)}</text>` +
+      `<text x="${x}" y="${y + 14}" text-anchor="middle" font-size="14" font-family="Helvetica, Arial, sans-serif">${esc(addr)}</text>`;
+  }
+  return svg + "</svg>";
+}
+
+// -------------------------------------------------------- HTML output
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function strlist(l) {
+  if (!l.length) return "";
+  const rest = l.slice(0, -1), tail = l[l.length - 1];
+  return rest.length ? rest.join(", ") + " and " + tail : tail;
+}
+
+function messageTemplate(to, from, message) {
+  return `<div class="message-template"><ul>
+    <li><span class="header">To:</span> ${to}</li>
+    <li><span class="header">From:</span> ${from}</li>
+    <li><span class="header">Message:</span> ${message}</li>
+  </ul></div>`;
+}
+
+function nodeHtml(node, directory) {
+  const name = esc(node.name), addr = esc(node.address), ns = esc(node.nameserver);
+  const network = esc(node.network), subnet = esc(node.subnet);
+  const example = messageTemplate("16.17.18", addr,
+    `Hi Toodle! It's ${name}. Are you going to Homework Club today?`);
+  let role;
+  if (node.isNameserver) {
+    role = "You are a nameserver, responsible for looking up addresses for your clients.";
+  } else {
+    role = (node.isGateway
+      ? "You are a gateway router, responsible for directing traffic between two networks."
+      : "You are an ordinary computer on the Internet.") + ` Your nameserver is ${ns}.`;
+  }
+  const setup = node.isGateway
+    ? `<li>Find the place where network ${network} meets network ${subnet} and sit so you can touch both circles.</li>
+       <li>Notice who is to your right ( --&gt; ) along the circle of network ${network}. Then notice who is to your right along network ${subnet}. </li>`
+    : `<li>Find network ${network} and sit down on the outside of the circle.</li>
+       <li>Notice who is to your right ( --&gt; ) along the circle of network ${network}.</li>`;
+  const receiving = node.isGateway
+    ? `<li>Otherwise, check whether the message was sent to an IP address that starts with ${subnet}.
+         <ul>
+           <li>If it starts with ${subnet}, pass it to the right along network ${subnet}.</li>
+           <li>Otherwise, pass it to the right along network ${network}.</li>
+         </ul></li>`
+    : `<li>Otherwise, pass the message to the right along network ${network}.</li>`;
+  const passing = node.isGateway
+    ? `(if the address starts with ${subnet}, pass it to the right on network ${subnet}; otherwise pass it to the right on network ${network}).`
+    : `along network ${network} as usual.`;
+  const sending = node.isNameserver
+    ? `<li>You can send messages to whoever you want. First, use your Directory to look up the address of the person you would like to write to. Then write a message:
+         ${example}</li>
+       <li>You are a nameserver, so most of the messages you receive will be requests for somebody's IP address. Use the Directory to look up the requested name, and write back.</li>`
+    : `<li>You can send messages to whoever you want. First, ask your nameserver for your friend's IP address:
+         ${messageTemplate(ns, addr, "What is Toodle Oo's address?")}</li>
+       <li>Once your nameserver writes you back, you can write to your friend:
+         ${example}</li>`;
+  const dir = node.isNameserver
+    ? `<h2>Directory</h2><ul>${directory.map(d => `<li>${esc(d.name)}: ${esc(d.address)}</li>`).join("")}</ul>`
+    : "";
+  return `<h1>${name} (IP Address: ${addr})</h1>
+<p class="role">${role}</p>
+<h2>Setup</h2>
+<ul>
+  <li>Make sure you have a pen or a pencil.</li>
+  ${setup}
+</ul>
+<h2>Receiving messages</h2>
+<ul>
+  <li>When you are handed a message, check to see if it's for you (${addr}). If so, keep it. (And write back!)</li>
+  ${receiving}
+</ul>
+<h2>Sending messages</h2>
+<ul>
+  <li>To send a message, fill out a slip of paper with "To", "From", and "Message" fields. When you are ready to send it, pass it to the right ${passing}</li>
+  ${sending}
+</ul>
+${dir}`;
+}
+
+const STYLE = `
+  body { font-family: Helvetica, Arial, sans-serif; }
+  svg { width: 100%; }
+  .role { font-style: italic; }
+  .message-template { border: 2px solid black; margin: 5px; padding: 10px; width: 400px; }
+  .message-template li { list-style: none; }
+  .header { font-weight: bold; }
+  @media screen { body { max-width: 800px; margin: 0 auto; } }
+  @media print { .instructions, .node-instructions { page-break-after: always; } }
+`;
+
+function instructionsHtml(sim, svg) {
+  const all = sim.root.getNodes(true);
+  const nodes = all.map(n => ({
+    name: n.name,
+    address: n.address,
+    nameserver: n.nameserver.address,
+    network: n.networkName(),
+    subnet: n.subnetName(),
+    isNameserver: n.isNameserver(),
+    isGateway: n.isGateway(),
+  }));
+  const directory = nodes.map(n => ({ name: n.name, address: n.address }))
+    .sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : a.address < b.address ? -1 : 1);
+  const networks = [...new Set(all.map(n => n.networkName()))].sort();
+  const networkList = networks.length > 1 ? strlist(networks.slice(1)) : "";
+  const sender = nodes[nodes.length - 2];
+  const recipient = nodes[nodes.length - 1];
+  const senderNameserver = nodes.find(n => n.address === sender.nameserver);
+  const e = esc;
+  const S = e(sender.name), R = e(recipient.name), SA = e(sender.address), RA = e(recipient.address);
+  const SNS = e(sender.nameserver), SNSname = e(senderNameserver.name);
+
+  const guide = `<div class="instructions">
+    <h1>TCP/IP Simulation</h1>
+    <p>
+      TCP/IP is the protocol responsible for routing messages around the Internet.
+      These materials contain everything you need to run a fun and informative simulation
+      of TCP/IP in your classroom, for any number of students. We once ran this simulation
+      with 200 students in a gymnasium!
+    </p>
+    <h2>Objectives</h2>
+    <p>
+      This simulation is designed to allow students to experience and participate in the TCP/IP
+      protocol, a core component of networking. This experience will make future learning experiences
+      more impactful, by providing a context for asking and reasoning about questions such as:
+    </p>
+    <ul>
+      <li>How do messages get transferred between the billions of computers on the Internet?</li>
+      <li>When a new computer joins the Internet, how do all the other computers find out how to send it messages?</li>
+      <li>Can other people see the messages I send over the Internet?</li>
+      <li>What happens when a message from one computer to another can't be delivered?</li>
+    </ul>
+    <h2>Background</h2>
+    <p>
+      The Internet is organized into networks. There is one top-level network (the "backbone"
+      of the Internet, powered by huge data centers and connected by undersea cables), with
+      smaller subnetworks attached. Smaller subnetworks are attached to those, on and on.
+    </p><p>
+      TCP/IP is a distributed protocol: there is no overall map of the network and nobody is
+      in charge. Instead, each computer plays its part and the whole system works. Several roles
+      are included in this simulation:
+    </p>
+    <ul>
+      <li>
+        <strong>Regular nodes</strong> are normal computers on a network. Their job is
+        to receive messages passed to them, and to pass along any messages which are not
+        addressed to them. Regular nodes can also send messages.
+      </li><li>
+        <strong>Gateway nodes</strong> are part of two networks: their main network, and
+        a subnetwork. Like regular nodes, gateway nodes can send and receive messages.
+        But when they receive a message not addressed to them, gateway nodes need to determine
+        whether the message should be routed to their subnetwork or to their main network.
+      </li><li>
+        <strong>Nameservers</strong> maintain an "address book" of each person's IP address.
+        Whenever anyone wants to send a message, they must address it to an IP address.
+        So they must first send a message to their nameserver asking for the person's IP address.
+      </li>
+    </ul>
+    <h2>Setup</h2>
+    <p>
+      First, use the TCP/IP simulation generator to create materials for your specific group of
+      participants. If you are reading this, you have probably already done so. Otherwise, please
+      refer to the software documentation at
+      <a href="https://github.com/cproctor/tcp-ip-simulation">https://github.com/cproctor/tcp-ip-simulation</a>.
+    </p>
+    <h3>Room setup</h3>
+    <p>
+      You will need to arrange your classroom for this activity.
+      Each network needs to be roughly a circle, with enough space for all the members of
+      that network, each person within arm's reach of their neighbors. A network could be a circle
+      of chairs or desks, a table, or a loop of string or tape on the floor, if your floors are
+      clean enough to sit on! Label Network 0 in some way--each participant will use this label
+      to figure out where to sit.
+    </p><p>
+      Start by creating Network 0 in the middle of the room, with enough room for the following
+      people: ${e(strlist(sim.root.getNodes().map(n => n.name)))}.
+      ${networkList ? `Then create your additional networks, ${e(networkList)}. Each of these networks needs
+      its own loop (again, a circle of chairs, a table, or a loop on the floor), and should
+      touch its parent network. Label each network (e.g. with a sheet of paper in the center).` : ""}
+      Here's a map of all the networks and their members:
+    </p>
+    ${svg}
+    <pre>${e(sim.root.treeString(false))}</pre>
+    <p>In case you need it, here's a directory of every participant's IP address:</p>
+    <ul>${directory.map(d => `<li>${e(d.name)}: ${e(d.address)}</li>`).join("")}</ul>
+    <h3>Materials</h3>
+    <p>
+      In addition to these instructions, you will need a lot of small sheets of paper--about
+      ten per person (${nodes.length * 10} sheets total) is about right. Scrap paper from the copyroom
+      cut into quarters works perfectly.
+    </p>
+    <h2>Lesson plan</h2>
+    <p>
+      This lesson is designed for a 50-minute class period. If you have extra time, there are
+      plenty of extensions you can explore in a second class period.
+      Spend as little time as possible introducing the lesson--it's best to jump right in.
+    </p><p>
+      <strong>Setup:</strong> Hand out the individual instruction sheets which were generated
+      with these instructions and ask students to complete the tasks under "setup." These are
+      different for each person.
+    </p><p>
+      <strong>Demo:</strong> Tell students you are going to demonstrate the "Receiving messages"
+      and "Sending messages" instructions on their instruction sheets, and ask them to read over
+      these instructions for a minute. Then choose two students who are "regular nodes" on different
+      subnets and model how one would send a message to the other.
+    </p><p>
+      For example, ${S} will send a message to ${R}. Follow these steps:
+    </p><ol>
+      <li>
+        ${S} (whose IP address is ${SA}) needs to find out
+        ${R}'s IP address. To do this, ${S} needs to
+        consult their nameserver, whose IP address is ${SNS}
+        (assigned in ${S}'s instructions). Write the following message on a sheet of
+        paper:
+        ${messageTemplate(SNS, SA, `What is ${R}'s address?`)}
+        <p>
+        Note that "from" and "to" must be IP addresses, not people's names. Other than "from", "to",
+        and "message", messages may not contain anything else. If anyone ever gets a malformed
+        message, they should feel free to crumple it up and throw it away.
+        </p>
+      </li><li>
+        Now ${S} should hand this message to the person to their right. Each person
+        should follow their own "Receiving messages" instructions until the message reaches
+        ${SNSname}, the nameserver. Nameservers have a list of everyone's IP address,
+        so ${SNSname} can write a reply:
+        ${messageTemplate(SA, SNS, `${R}'s address is ${RA}.`)}
+      </li><li>
+        Now this reply needs to be delivered. ${SNSname} hands the message to the person
+        to their right, and once again each person follows their own instructions until the message
+        reaches ${S}.
+      </li><li>
+        Now that ${S} knows ${R}'s address, they can finally send a message:
+        ${messageTemplate(RA, SA, `Hey, it's ${S}. What are you doing after school today?`)}
+      </li><li>
+        One last time, ${S} hands the message to their right, and everyone else follows
+        their own instructions until the message is delivered.
+      </li>
+    </ol>
+    <p>
+      <strong>Round 1</strong>. In the first round of the simulation, everyone should do their
+      best to make things work smoothly. The teacher should focus on helping people who get stuck.
+      After a suitable amount of time, once messages are finding their way around properly,
+      stop the simulation.
+    </p><p>
+      <strong>Discussion</strong>. Ask students to share anything they noticed or anything they
+      wondered. Common responses include:
+    </p>
+    <ul>
+      <li>Sometimes people send messages and they just disappear. (Is there anything you can
+        do other than re-sending?)</li>
+      <li>Sometimes nameservers or gateway routers get backed up, with large piles of messages.
+        Hopefully this was funny rather than stressful. (When someone gets backed up, what
+        should they do?)</li>
+      <li>Students often complain that other people are reading their messages. (What could be
+        done about this?)</li>
+      <li>If you have a sufficiently trusting and playful classroom culture, some students may
+        have gotten up to some mischief, such as spoofing other users (sending messages that
+        claim to be from someone else), replacing messages in transit with different messages,
+        censoring messages, etc. (These are all real issues in networks. How could they be
+        dealt with?)</li>
+    </ul>
+    <p>
+      <strong>Round 2</strong> Run another round of the simulation. If things went well in Round 1,
+      consider adding a challenge or interfering with the network. Possible challenges:
+    </p>
+    <ul>
+      <li>With the class, agree on a policy to address an issue that came up in Round 1,
+        and see how well it works.</li>
+      <li>Send a long, multi-part letter to someone else, using multiple messages.</li>
+      <li>Find a way to send a secret message to someone else.</li>
+    </ul>
+    <p>Possible forms of interference:</p>
+    <ul>
+      <li>Start randomly intercepting messages and throwing them away.</li>
+      <li>Create a message whose "to" address does not exist (it will go around and around forever,
+        until someone gets tired of it and throws it away!)</li>
+      <li>Quietly encourage a student to begin some of the mischief described above:
+        spoofing other users (sending messages that claim to be from someone else),
+        replacing messages in transit with different messages, or censoring messages.</li>
+    </ul>
+    <p>
+      <strong>Concluding discussion</strong>. Once again, ask students to share anything they
+      noticed or anything they wondered. Depending on what additional lessons you are planning
+      to teach on networking, it may be valuable to write these down somewhere in the classroom
+      so you can refer back to them.
+    </p>
+  </div>`;
+
+  const sheets = nodes.map(n => `<div class="node-instructions">${nodeHtml(n, directory)}</div>`).join("\n");
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TCP/IP Simulation</title>
+<style>${STYLE}</style>
+</head>
+<body>
+${guide}
+${sheets}
+</body>
+</html>`;
+}
+
+// ----------------------------------------------------------------- CSV
+
+// Minimal RFC 4180 parser: returns an array of rows (arrays of strings).
+function parseCsv(text) {
+  text = text.replace(/^﻿/, "");
+  const rows = [];
+  let row = [], field = "", quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') quoted = false;
+      else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); field = "";
+      rows.push(row); row = [];
+    } else field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.length > 1 || r[0] !== "");
+}
+
+function participantsFromCsv(text) {
+  const rows = parseCsv(text);
+  const col = rows.length ? rows[0].indexOf("name") : -1;
+  if (col < 0) throw new Error("CSV file must contain a 'name' column");
+  return rows.slice(1).map(r => r[col] ?? "");
+}
+
+function shuffle(list) {
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
+}
+
+// ------------------------------------------------------------------ UI
+
+const $ = id => document.getElementById(id);
+let currentHtml = "";
+
+function readInt(id, label) {
+  const v = Number($(id).value);
+  if (!Number.isInteger(v) || v < 1) throw new Error(`${label} must be a whole number of at least 1`);
+  return v;
+}
+
+function setStatus(msg, isError = false) {
+  $("status").textContent = msg;
+  $("status").className = isError ? "error" : "";
+}
+
+$("generate").addEventListener("click", async () => {
+  try {
+    const file = $("participants").files[0];
+    if (!file) throw new Error("Choose a CSV file of participants first");
+    const ipAddressLength = readInt("ipLength", "IP address length");
+    const maxNodes = readInt("maxNodes", "Maximum nodes per network");
+    const nodesPerNameserver = readInt("nodesPerNameserver", "Nodes per nameserver");
+    const figsize = readInt("figsize", "Graph size");
+
+    let participants = participantsFromCsv(await file.text());
+    if (participants.length < 2) throw new Error("The CSV file needs at least two participants");
+    if (participants.some(p => p.trim() === "")) throw new Error("Every row needs a non-empty name");
+    if ($("random").checked) shuffle(participants);
+
+    const sim = new TcpIpSimulation(participants, { maxNodes, nodesPerNameserver, ipAddressLength });
+    currentHtml = instructionsHtml(sim, graphSvg(sim, figsize));
+    $("preview").srcdoc = currentHtml;
+    $("result").style.display = "block";
+    setStatus(`Generated materials for ${participants.length} participants.`);
+    $("result").scrollIntoView({ behavior: "smooth" });
+  } catch (err) {
+    $("result").style.display = "none";
+    setStatus(err.message, true);
+  }
+});
+
+$("download").addEventListener("click", () => {
+  const url = URL.createObjectURL(new Blob([currentHtml], { type: "text/html" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = $("outfile").value.trim() || "simulation.html";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+$("print").addEventListener("click", () => {
+  $("preview").contentWindow.focus();
+  $("preview").contentWindow.print();
+});
+</script>
+</body>
+</html>
